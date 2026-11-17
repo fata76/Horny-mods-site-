@@ -1,4 +1,4 @@
 @echo off
-start http://localhost:8080
-cd backend
+cd /d "%~dp0"
 go run main.go
+pause
