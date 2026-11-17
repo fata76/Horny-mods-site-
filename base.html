@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.TeamName}}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>{{.TeamName}}</h1>
+        <nav>
+            <a href="/">Главная</a> |
+            <a href="/about">О нас</a>
+        </nav>
+    </header>
+
+    <main>
+        {{template "content" .}}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Наша команда</p>
+    </footer>
+</body>
+</html>

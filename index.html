@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Разработчики Модов</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e24;
+            color: #f5f5f5;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        h1, h2 { color: #00adb5; }
+        .card {
+            background-color: #2a2a35;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #00adb5;
+        }
+        form {
+            background-color: #2a2a35;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            background-color: #3e3e4f;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #00adb5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #008c95; }
+    </style>
+</head>
+<body>
+
+    <h1>Каталог разработчиков модов</h1>
+    <div id="developers-list">Загрузка данных...</div>
+
+    <h2>Добавить разработчика</h2>
+    <form id="add-form">
+        <div class="form-group">
+            <label for="name">Никнейм / Имя:</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label for="game">Игра:</label>
+            <input type="text" id="game" required>
+        </div>
+        <div class="form-group">
+            <label for="mods">Моды (через запятую):</label>
+            <input type="text" id="mods" placeholder="Например: Мод 1, Мод 2" required>
+        </div>
+        <button type="submit">Сохранить</button>
+    </form>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/developers';
+
+        
+        async function loadDevelopers() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                const container = document.getElementById('developers-list');
+                container.innerHTML = '';
+
+                if (data.length === 0) {
+                    container.innerHTML = '<p>Список пуст.</p>';
+                    return;
+                }
+
+                data.forEach(dev => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <h3>${dev.name}</h3>
+                        <p><strong>Игра:</strong> ${dev.game}</p>
+                        <p><strong>Моды:</strong> ${dev.mods ? dev.mods.join(', ') : 'Нет модов'}</p>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                document.getElementById('developers-list').innerText = 'Ошибка загрузки данных бэкенда.';
+                console.error(error);
+            }
+        }
+
+        
+        document.getElementById('add-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const game = document.getElementById('game').value;
+            
+            const mods = document.getElementById('mods').value.split(',').map(m => m.trim());
+
+            const newDev = { name, game, mods };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newDev)
+                });
+
+                if (response.ok) {
+                    document.getElementById('add-form').reset();
+                    loadDevelopers(); 
+                } else {
+                    alert('Не удалось добавить разработчика');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Ошибка соединения с сервером');
+            }
+        });
+
+        
+        loadDevelopers();
+    </script>
+</body>
+</html>
